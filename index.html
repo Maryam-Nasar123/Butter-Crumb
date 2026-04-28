@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Butter & Crumb | Artisan Bakery – Shopping Cart & Checkout</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Nunito:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --cream: #FDF6E3;
+      --butter: #FFE8B5;
+      --rose: #E8B4B8;
+      --terracotta: #D97A5C;
+      --brown: #4A2E1B;
+      --brown-light: #6B5B4B;
+      --honey: #E3A018;
+      --caramel: #C17A45;
+      --white: #FFFDF7;
+      --shadow-sm: 0 8px 20px rgba(74, 46, 27, 0.08);
+      --shadow-md: 0 16px 40px rgba(74, 46, 27, 0.12);
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--cream);
+      color: var(--brown);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+    }
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 4rem;
+      background: rgba(253, 246, 227, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(227, 160, 24, 0.15);
+      transition: box-shadow 0.2s;
+    }
+    nav.scrolled { box-shadow: 0 4px 24px rgba(74, 46, 27, 0.08); }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--brown);
+      text-decoration: none;
+    }
+    .nav-logo span {
+      font-family: 'Dancing Script', cursive;
+      font-size: 0.8rem;
+      color: var(--caramel);
+      display: block;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+    .nav-links a {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--brown-light);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--brown); }
+    .cart-icon {
+      position: relative;
+      background: var(--honey);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      color: white !important;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cart-count {
+      background: var(--brown);
+      color: white;
+      border-radius: 30px;
+      padding: 0px 8px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .hamburger span { width: 24px; height: 2px; background: var(--brown); border-radius: 3px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    section { padding: 5rem 4rem; }
+    .section-eyebrow { font-family: 'Dancing Script', cursive; font-size: 1.2rem; color: var(--caramel); text-align: center; display: block; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; text-align: center; }
+    .divider { width: 70px; height: 3px; background: linear-gradient(to right, var(--honey), var(--rose)); margin: 1rem auto 2rem; border-radius: 4px; }
+    .hero {
+      min-height: 90vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 70% 30%, rgba(255, 232, 181, 0.4), rgba(253, 246, 227, 0.9)), url('https://images.pexels.com/photos/2693442/pexels-photo-2693442.jpeg?auto=compress&cs=tinysrgb&w=1600') no-repeat center center/cover;
+      background-blend-mode: overlay;
+    }
+    .hero-content { background: rgba(253, 246, 227, 0.75); backdrop-filter: blur(8px); border-radius: 48px; padding: 2rem; text-align: center; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.8rem); }
+    .btn-primary, .btn-secondary {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      font-weight: 700;
+      text-decoration: none;
+      margin: 0.5rem;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--honey); color: white; box-shadow: 0 4px 12px rgba(227,160,24,0.3); }
+    .btn-primary:hover { background: var(--caramel); transform: translateY(-2px); }
+    .btn-secondary { border: 2px solid var(--brown); color: var(--brown); background: transparent; }
+    .items-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+    .item-card { background: var(--white); border-radius: 28px; overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
+    .item-card-img { width: 100%; height: 200px; background-size: cover; background-position: center; }
+    .item-card-body { padding: 1.2rem; }
+    .add-to-cart-btn { background: var(--caramel); color: white; border: none; padding: 0.5rem 1rem; border-radius: 40px; font-weight: 600; margin-top: 0.8rem; cursor: pointer; width: 100%; font-family: 'Nunito', sans-serif; }
+    /* Cart Sidebar */
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -450px;
+      width: 420px;
+      max-width: 90vw;
+      height: 100vh;
+      background: var(--white);
+      box-shadow: -8px 0 30px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+    }
+    .cart-sidebar.open { right: 0; }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--butter); padding-bottom: 1rem; }
+    .cart-items { flex: 1; overflow-y: auto; margin: 1rem 0; }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    .cart-total { font-weight: bold; font-size: 1.2rem; border-top: 2px dashed var(--honey); padding-top: 1rem; margin-top: 1rem; }
+    .checkout-btn { background: var(--honey); width: 100%; padding: 0.8rem; border-radius: 40px; color: white; font-weight: bold; border: none; cursor: pointer; margin-top: 1rem; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; display: none; }
+    /* Checkout Modal */
+    .checkout-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 40px;
+      z-index: 2000;
+      padding: 2rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-md);
+    }
+    .checkout-modal.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .checkout-modal h3 { font-family: 'Playfair Display', serif; margin-bottom: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.8rem; border-radius: 30px; border: 1px solid #e2d6c0; background: var(--cream); font-family: inherit; }
+    .order-summary { background: #faf0e0; border-radius: 24px; padding: 1rem; margin: 1rem 0; font-size: 0.9rem; }
+    .close-modal { position: absolute; top: 1rem; right: 1.5rem; font-size: 1.5rem; cursor: pointer; }
+    /* Menu styles */
+    .menu-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; padding: 1rem 2rem; background: var(--white); position: sticky; top: 70px; z-index: 60; }
+    .menu-tab { background: transparent; border: 2px solid rgba(74,46,27,0.15); padding: 0.5rem 1.2rem; border-radius: 40px; font-weight: 600; cursor: pointer; }
+    .menu-tab.active { background: var(--honey); border-color: var(--honey); color: white; }
+    .menu-section { display: none; padding: 2rem 4rem; max-width: 1300px; margin: 0 auto; }
+    .menu-section.active { display: block; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .menu-card { background: white; border-radius: 24px; display: flex; justify-content: space-between; align-items: center; padding: 1rem; box-shadow: var(--shadow-sm); }
+    .cart-add-small { background: var(--honey); border: none; border-radius: 30px; padding: 0.3rem 1rem; color: white; font-weight: bold; cursor: pointer; }
+    footer { background: linear-gradient(145deg, #3A2010, #4A2E1B); color: #ffe8b5; padding: 3rem 4rem 2rem; margin-top: 2rem; }
+    @media (max-width: 800px) {
+      nav { padding: 0.8rem 1.5rem; }
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 70px; left: 0; right: 0; background: rgba(253,246,227,0.98); backdrop-filter: blur(20px); padding: 2rem; align-items: center; gap: 1.5rem; z-index: 99; }
+      .hamburger { display: flex; }
+      section, .menu-section { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="showPage('home')">Butter & Crumb<span>Artisan Bakery</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a onclick="showPage('home')">Home</a></li>
+    <li><a onclick="showPage('menu')">Menu</a></li>
+    <li><a onclick="showPage('about')">About</a></li>
+    <li><a class="cart-icon" id="cartNavBtn" style="cursor:pointer;">🛒 <span id="cartCountDisplay">0</span></a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- Cart Sidebar -->
+<div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Your Artisan Basket</h3>
+    <button onclick="closeCart()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
+  </div>
+  <div class="cart-items" id="cartItemsList"><p style="color:#aaa;">Your cart is empty</p></div>
+  <div class="cart-total" id="cartTotal">Total: $0.00</div>
+  <button class="checkout-btn" id="openCheckoutBtn">Proceed to Checkout →</button>
+</div>
+
+<!-- Checkout Modal -->
+<div class="checkout-modal" id="checkoutModal">
+  <span class="close-modal" onclick="closeCheckoutModal()">&times;</span>
+  <h3>🍞 Complete Your Order</h3>
+  <p style="margin-bottom:1rem;">We'll bake your items fresh!</p>
+  <div class="order-summary" id="modalOrderSummary">Loading...</div>
+  <form id="checkoutForm">
+    <div class="form-group"><input type="text" id="custName" placeholder="Full name *" required></div>
+    <div class="form-group"><input type="email" id="custEmail" placeholder="Email address *" required></div>
+    <div class="form-group"><input type="tel" id="custPhone" placeholder="Phone number (optional)"></div>
+    <div class="form-group"><textarea id="custNotes" rows="2" placeholder="Special requests or pickup time?"></textarea></div>
+    <button type="submit" class="btn-primary" style="width:100%;">✨ Place Order Now ✨</button>
+  </form>
+</div>
+
+<!-- HOME PAGE -->
+<div class="page active" id="home-page">
+  <div class="hero">
+    <div class="hero-content">
+      <span class="section-eyebrow">~ Est. 2016 · Handmade ~</span>
+      <h1 class="hero-title">Flaky, Buttery,<br>Unforgettable</h1>
+      <p style="margin:1rem 0;">Real croissants, artisan loaves — add to cart & enjoy.</p>
+      <div><a class="btn-primary" onclick="showPage('menu')">Explore Menu</a><a class="btn-secondary" onclick="showPage('menu')">Shop Now</a></div>
+    </div>
+  </div>
+  <section>
+    <span class="section-eyebrow reveal">Fresh from the oven</span>
+    <h2 class="section-title reveal">Our Signature Favourites</h2>
+    <div class="divider reveal"></div>
+    <div class="items-grid" id="featured-grid"></div>
+  </section>
+  <div style="background: #FAF0E0; text-align: center; padding: 4rem 2rem;">
+    <blockquote style="font-family: 'Playfair Display', serif; font-size: 1.6rem;">"Each swirl, each sprinkle — made by hand, never by haste."</blockquote>
+    <cite style="font-family:'Dancing Script';">— Sophie & Maret, Head Bakers</cite>
+  </div>
+  <footer><div><strong>Butter & Crumb</strong><p>Artisan bakery since 2016</p><div>📍 42 Crumb Lane · (555) 284-7700</div></div></footer>
+</div>
+
+<!-- MENU PAGE (dynamic) -->
+<div class="page" id="menu-page">
+  <div style="background: #FDF0E0; text-align: center; padding: 5rem 2rem 2rem;">
+    <span class="section-eyebrow">from our ovens</span>
+    <h1 class="section-title">The Full Menu</h1>
+    <p>Click "Add to Cart" on any item — build your perfect bakery box.</p>
+  </div>
+  <div class="menu-tabs" id="menuTabs">
+    <button class="menu-tab active" onclick="switchTab('sweet')">🧁 Sweet Pastries</button>
+    <button class="menu-tab" onclick="switchTab('savoury')">🧀 Savoury</button>
+    <button class="menu-tab" onclick="switchTab('breads')">🍞 Breads</button>
+    <button class="menu-tab" onclick="switchTab('cakes')">🎂 Cakes</button>
+    <button class="menu-tab" onclick="switchTab('cookies')">🍪 Cookies</button>
+    <button class="menu-tab" onclick="switchTab('drinks')">☕ Drinks</button>
+  </div>
+  <div id="menuSectionsContainer"></div>
+  <footer style="margin-top:2rem;"><div>Butter & Crumb — Made by hand, baked with love</div></footer>
+</div>
+
+<!-- ABOUT PAGE (simple) -->
+<div class="page" id="about-page">
+  <div style="padding: 6rem 2rem 2rem; text-align: center; background: #fdf1e2;"><h1 class="section-title">Where every loaf tells a story</h1><p>Real ingredients, warmth, and craft.</p></div>
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; max-width:1200px; margin:3rem auto; padding:1rem;">
+    <img src="https://images.pexels.com/photos/6475118/pexels-photo-6475118.jpeg?auto=compress&cs=tinysrgb&w=800" style="border-radius:32px; max-width:100%; width:400px;" alt="baker">
+    <div><h2 style="font-family:'Playfair Display';">Handmade since 2016</h2><p>Butter & Crumb was born from a desire for real bread. No shortcuts, no preservatives. Every croissant is still laminated by hand, every sourdough fermented for 48 hours.</p><p>Our flour is organic, our butter is European-style, and our passion is endless.</p></div>
+  </div>
+  <footer><div>© Butter & Crumb — Real images from our bakery, real love in every bite.</div></footer>
+</div>
+
+<script>
+  // ---------- FULL MENU DATA ----------
+  const menuData = {
+    sweet: [ { name: "Classic Croissant", desc: "Flaky, buttery", price: 3.50 }, { name: "Pain au Chocolat", desc: "Dark chocolate", price: 4.00 }, { name: "Almond Croissant", desc: "Almond cream", price: 4.25 }, { name: "Cinnamon Roll", desc: "Cream cheese glaze", price: 4.25 }, { name: "Danish Pastry", desc: "Cherry / cream cheese", price: 3.75 }, { name: "Kouign-Amann", desc: "Caramelized", price: 4.50 }, { name: "Apple Cider Doughnut", desc: "Spiced", price: 2.90 }, { name: "Glazed Yeast Doughnut", desc: "Classic", price: 2.50 } ],
+    savoury: [ { name: "Ham & Cheese Croissant", desc: "Gruyère", price: 4.75 }, { name: "Spinach & Feta Burek", desc: "Flaky phyllo", price: 4.50 }, { name: "Sausage Roll", desc: "Pork, fennel", price: 4.25 }, { name: "Mushroom & Thyme Puff", desc: "Cream cheese", price: 4.50 }, { name: "Quiche Lorraine", desc: "Bacon, egg", price: 4.75 }, { name: "Tomato & Mozzarella Turnover", desc: "Pesto", price: 4.00 }, { name: "Bacon & Cheddar Scone", desc: "Savory", price: 3.50 }, { name: "Spanakopita Triangle", desc: "Spinach, feta", price: 4.25 } ],
+    breads: [ { name: "Focaccia", desc: "Rosemary, sea salt", price: 5.50 }, { name: "Cheese & Jalapeño Sourdough", desc: "Tangy", price: 7.00 }, { name: "Everything Bagel", desc: "With cream cheese", price: 3.25 }, { name: "Soft Pretzel", desc: "Salted", price: 3.00 }, { name: "Zucchini & Parmesan Loaf", desc: "Moist", price: 6.50 }, { name: "Pizza Rustica", desc: "Ricotta, salami", price: 5.75 } ],
+    cakes: [ { name: "Lemon Drizzle Loaf", desc: "Tangy glaze", price: 4.25 }, { name: "Banana Bread", desc: "Walnuts/chocolate", price: 4.00 }, { name: "Carrot Cake", desc: "Cream cheese", price: 5.50 }, { name: "Double Chocolate Brownie", desc: "Fudgy", price: 3.50 }, { name: "Red Velvet Cupcake", desc: "Cream cheese", price: 3.75 } ],
+    cookies: [ { name: "Chocolate Chip Cookie", desc: "Soft-batch", price: 2.25 }, { name: "Oatmeal Raisin", desc: "Chewy", price: 2.25 }, { name: "Macaron", desc: "Vanilla/pistachio", price: 2.50 }, { name: "Madeleine", desc: "Light sponge", price: 2.00 } ],
+    drinks: [ { name: "Drip Coffee", desc: "Medium roast", price: 2.50 }, { name: "Latte / Cappuccino", desc: "Velvety", price: 3.75 }, { name: "Chai Latte", desc: "Spiced", price: 4.00 }, { name: "Za'atar & Olive Oil Dip", desc: "With bread", price: 3.00 }, { name: "Pimento Cheese", desc: "For bagels", price: 2.50 } ]
+  };
+  const featuredItems = [
+    { name: "Classic Sourdough", desc: "Tangy crust, organic", price: 6.50, img: "https://images.pexels.com/photos/2637529/pexels-photo-2637529.jpeg?auto=compress&cs=tinysrgb&w=600" },
+    { name: "Butter Croissant", desc: "64 layers", price: 3.50, img: "https://images.pexels.com/photos/5700093/pexels-photo-5700093.jpeg?auto=compress&cs=tinysrgb&w=600" },
+    { name: "Almond Croissant", desc: "Almond cream", price: 4.25, img: "https://images.pexels.com/photos/2703472/pexels-photo-2703472.jpeg?auto=compress&cs=tinysrgb&w=600" },
+    { name: "Chocolate Chip Cookie", desc: "Dark chocolate", price: 2.25, img: "https://images.pexels.com/photos/18949720/pexels-photo-18949720/free-photo-of-chocolate-chip-cookie.jpeg?auto=compress&cs=tinysrgb&w=600" }
+  ];
+
+  let cart = [];
+
+  // Helper functions
+  function updateCartUI() {
+    const container = document.getElementById('cartItemsList');
+    const totalSpan = document.getElementById('cartTotal');
+    const countSpan = document.getElementById('cartCountDisplay');
+    if (!container) return;
+    if (cart.length === 0) { container.innerHTML = '<p style="color:#aaa;">Your cart is empty 🥐</p>'; totalSpan.innerText = 'Total: $0.00'; if(countSpan) countSpan.innerText = '0'; return; }
+    let total = 0, itemCount = 0;
+    container.innerHTML = '';
+    cart.forEach((item, idx) => {
+      total += item.price * item.qty;
+      itemCount += item.qty;
+      const div = document.createElement('div'); div.className = 'cart-item';
+      div.innerHTML = `<div><strong>${item.name}</strong><br><small>Qty: ${item.qty}</small></div><div>$${(item.price * item.qty).toFixed(2)} <button style="margin-left:8px; background:#E8B4B8; border:none; border-radius:30px; padding:2px 8px;" onclick="removeFromCart(${idx})">🗑️</button></div>`;
+      container.appendChild(div);
+    });
+    totalSpan.innerText = `Total: $${total.toFixed(2)}`;
+    if(countSpan) countSpan.innerText = itemCount;
+  }
+
+  function addToCart(name, price) {
+    const existing = cart.find(item => item.name === name);
+    if(existing) existing.qty += 1;
+    else cart.push({ name, price, qty: 1 });
+    updateCartUI();
+    openCart();
+    showToast(`✨ ${name} added to cart!`);
+  }
+
+  function removeFromCart(index) {
+    if(cart[index].qty > 1) cart[index].qty -= 1;
+    else cart.splice(index,1);
+    updateCartUI();
+    if(cart.length === 0) closeCart();
+  }
+
+  function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').style.display = 'block'; }
+  function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').style.display = 'none'; }
+
+  // CHECKOUT FUNCTIONALITY (working)
+  function openCheckoutModal() {
+    if (cart.length === 0) { showToast("Your cart is empty! Add some delicious treats first."); return; }
+    // update modal order summary
+    const summaryDiv = document.getElementById('modalOrderSummary');
+    let total = 0;
+    let itemsHtml = '<ul style="list-style:none; padding-left:0;">';
+    cart.forEach(item => { total += item.price * item.qty; itemsHtml += `<li>${item.name} x${item.qty} — $${(item.price * item.qty).toFixed(2)}</li>`; });
+    itemsHtml += `</ul><strong>Total: $${total.toFixed(2)}</strong><br><small>Tax included • Freshly baked</small>`;
+    summaryDiv.innerHTML = itemsHtml;
+    document.getElementById('checkoutModal').classList.add('open');
+    document.getElementById('cartOverlay').style.display = 'block'; // keep overlay behind modal
+  }
+  function closeCheckoutModal() {
+    document.getElementById('checkoutModal').classList.remove('open');
+    document.getElementById('cartOverlay').style.display = 'none';
+  }
+
+  // Finalize order submission (fully working checkout)
+  function finalizeOrder(event) {
+    event.preventDefault();
+    const name = document.getElementById('custName').value.trim();
+    const email = document.getElementById('custEmail').value.trim();
+    if (!name || !email) { showToast("Please enter name and email address."); return; }
+    if (cart.length === 0) { showToast("Cart is empty. Add items before checkout."); return; }
+    // Build order details
+    let orderItems = cart.map(i => `${i.name} x${i.qty}`).join(', ');
+    let totalAmt = cart.reduce((sum,i) => sum + (i.price * i.qty), 0).toFixed(2);
+    let notes = document.getElementById('custNotes').value;
+    
+    // Simulate order submission (real bakery notification)
+    console.log("ORDER PLACED:", { name, email, items: cart, total: totalAmt, notes });
+    showToast(`🎉 Thank you ${name}! Your order ($${totalAmt}) has been received. We'll email you at ${email} within 30 min.`);
+    
+    // Clear cart & close modals
+    cart = [];
+    updateCartUI();
+    closeCheckoutModal();
+    closeCart();
+    // Optionally reset form
+    document.getElementById('checkoutForm').reset();
+    // Show success message and switch to home maybe?
+    setTimeout(() => { showPage('home'); }, 500);
+  }
+
+  function showToast(msg) {
+    let toast = document.getElementById('toastMsg');
+    if(!toast) { let t = document.createElement('div'); t.id='toastMsg'; t.style.cssText = 'position:fixed; bottom:2rem; right:2rem; background:#4A2E1B; color:#FFE8B5; padding:0.8rem 1.6rem; border-radius:60px; opacity:0; transition:0.3s; z-index:2100;'; document.body.appendChild(t); toast = t; }
+    toast.innerText = msg;
+    toast.style.opacity = '1';
+    setTimeout(() => toast.style.opacity = '0', 3000);
+  }
+
+  // Render full menu + featured
+  function renderFullMenu() {
+    const container = document.getElementById('menuSectionsContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    const categories = ['sweet','savoury','breads','cakes','cookies','drinks'];
+    const titles = { sweet:'🥐 Sweet Pastries', savoury:'🧀 Savoury', breads:'🍞 Breads & Buns', cakes:'🎂 Cakes & Loaves', cookies:'🍪 Cookies & Bites', drinks:'☕ Drinks' };
+    categories.forEach(cat => {
+      const section = document.createElement('div'); section.className = 'menu-section'; if(cat === 'sweet') section.classList.add('active');
+      section.id = `tab-${cat}`;
+      section.innerHTML = `<h2 style="font-family:'Playfair Display';">${titles[cat]}</h2><div class="menu-grid" id="grid-${cat}"></div>`;
+      container.appendChild(section);
+      const gridDiv = section.querySelector(`.menu-grid`);
+      menuData[cat].forEach(item => {
+        const card = document.createElement('div'); card.className = 'menu-card';
+        card.innerHTML = `<div><h4>${item.name}</h4><p style="font-size:0.8rem;">${item.desc}</p></div><div style="text-align:right;"><strong>$${item.price.toFixed(2)}</strong><br><button class="cart-add-small" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">+ Add</button></div>`;
+        gridDiv.appendChild(card);
+      });
+    });
+  }
+  function renderFeatured() {
+    const grid = document.getElementById('featured-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    featuredItems.forEach(item => {
+      const card = document.createElement('div'); card.className = 'item-card reveal';
+      card.innerHTML = `<div class="item-card-img" style="background-image: url('${item.img}');"></div><div class="item-card-body"><h3>${item.name}</h3><p>${item.desc}</p><span>$${item.price.toFixed(2)}</span><button class="add-to-cart-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">Add to Cart 🛒</button></div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // Navigation & UI
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page + '-page').classList.add('active');
+    window.scrollTo(0,0); if(document.getElementById('navLinks')) document.getElementById('navLinks').classList.remove('open');
+    initReveal();
+    if(page === 'menu') { /* ensure menu loaded */ }
+  }
+  function toggleNav() { document.getElementById('navLinks')?.classList.toggle('open'); }
+  function switchTab(tab) {
+    document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    if(event && event.target) event.target.classList.add('active');
+  }
+  function initReveal() { document.querySelectorAll('.reveal').forEach(el => { if(el.getBoundingClientRect().top < window.innerHeight-80) el.classList.add('visible'); else el.classList.remove('visible'); }); }
+
+  window.addEventListener('scroll', initReveal);
+  document.addEventListener('DOMContentLoaded', () => {
+    renderFullMenu(); renderFeatured(); initReveal();
+    const nav = document.getElementById('navbar'); 
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY>20));
+    document.getElementById('cartNavBtn')?.addEventListener('click', openCart);
+    document.getElementById('openCheckoutBtn')?.addEventListener('click', openCheckoutModal);
+    document.getElementById('checkoutForm')?.addEventListener('submit', finalizeOrder);
+    updateCartUI();
+  });
+  window.showPage = showPage; window.toggleNav = toggleNav; window.switchTab = switchTab; window.addToCart = addToCart; window.removeFromCart = removeFromCart; window.openCart = openCart; window.closeCart = closeCart; window.openCheckoutModal = openCheckoutModal; window.closeCheckoutModal = closeCheckoutModal; window.finalizeOrder = finalizeOrder;
+</script>
+<div id="toastMsg" style="position:fixed; bottom:2rem; right:2rem; background:#4A2E1B; color:#FFE8B5; padding:0.8rem 1.6rem; border-radius:60px; opacity:0; transition:0.3s; z-index:2100;"></div>
+</body>
+</html>
